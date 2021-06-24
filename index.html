@@ -1,14 +1,16 @@
 <html>
 <head>
   <title>la zbalermorna kelci</title>
-  <link rel="stylesheet" type="text/css" href="//jackhumbert.github.io/zbalermorna/assets/css/fonts.css">
+  <link rel="stylesheet" type="text/css" href="http://jackhumbert.github.io/zbalermorna/assets/css/fonts.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    body { margin: 0; }
+
     #overlay {
       background-color: white;
       width: 100%;
       height: 100%;
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       z-index: -10;
@@ -24,8 +26,8 @@
 
     @keyframes tuck {
       0%   {}
-      55%  {width: 100%; height: 100%; font-size: 80px;}
-      100% {width: 20px; height: 20px; font-size: 20px;}
+      55%  {width: 100%; height: 100%; font-size: 8vw;}
+      100% {width: 2vw; height: 2vw; font-size: 2vw;}
     }
 
     #overlay.reveal {
@@ -39,55 +41,48 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 80px;
-      padding: 3px;
+      font-size: 12vw;
+      padding: 0.3vw;
       animation-name: tuck;
       animation-duration: 0.9s;
     }
 
     #score {
-      position: absolute;
+      position: fixed;
       z-index: -5;
-      top: 0px;
-      left: 0px;
-      padding: 3px;
-      font-size: 20px;
+      width: 100%;
+      top: 0;
+      left: 0;
+      padding: 0.3vw;
     }
 
-    #accuracy {
-      position: absolute;
-      top: 5px;
-      left: 35px;
-      width: 250px;
-      font-family: monospace;
-      color: #666;
-      font-size: 15px;
+    #prevresult {
+      float: left;
+      font-size: 2vw;
+      padding-left: 0.5vw;
+      padding-right: 0.5vw;
     }
 
-    #speed {
-      position: absolute;
-      top: 25px;
-      left: 35px;
-      width: 250px;
+    #accuracy, #speed {
       font-family: monospace;
       color: #666;
-      font-size: 15px;
+      font-size: 1.5vw;
     }
 
     section {
-      font-size: 40px;
+      font-size: 3vw;
       font-family: 'dunda-regular';
-      width: 80%;
-      margin-right: 10%;
-      margin-left: 10%;
-      margin-top: 20px;
-      padding: 15px;
+      width: 80vw;
+      margin-right: auto;
+      margin-left: auto;
+      margin-top: 2vh;
+      padding: 2vw;
       text-align: center;
     }
 
     #prompt {
-      margin-top: 70px;
-      margin-bottom: 50px;
+      margin-top: 5vh;
+      margin-bottom: 4vh;
     }
 
     .option {
@@ -109,15 +104,19 @@
     let history = [];
     let time = 0;
 
-    attitudinal = [".ii", ".o'i", ".ua", ".iu", ".zo'o"];
+    attitudinal = [".ii", ".o'i", ".ua", ".iu", ".zo'o", ".ai"];
+    pro_sumpti = ["mi", "do", "mi'o", "ti", "ta"];
     three_word_sumti = ["mu xagji sofybakni", "re xagji sofybakni", "le blanu sofybakni"];
-    simple_selbri = ["cu zvati", "cu dunda", "cu tavla", "cu tanru"]
+    simple_selbri = ["zvati", "dunda", "tavla", "tanru", "zenba"];
+    cu_selbri = simple_selbri.map(x => "cu "+x);
     simple_sumti = ["le purdi", "lo karce", "lo gerku", "la gerku", "lo remna", "le prenu"];
     digit = ["no", "pa", "re", "ci", "vo", "mu", "xa", "ze", "bi"];
     challenges = [
-      [attitudinal, three_word_sumti, simple_selbri, simple_sumti],
-      [simple_sumti, simple_selbri],
+      [attitudinal, three_word_sumti, cu_selbri, simple_sumti],
+      [simple_sumti, cu_selbri],
       [attitudinal, digit],
+      [attitudinal, pro_sumpti, simple_selbri],
+      [pro_sumpti, simple_selbri, simple_sumti],
     ];
 
     zba_lookup = [
@@ -262,12 +261,12 @@
       let t = (new Date()).getTime() - time;
       let over = document.getElementById('overlay');
       over.classList.add('reveal');
-      if (document.getElementById('prompt').innerHTML == zbalermornize(document.getElementById(id).innerHTML)) {
+      if (zbalermornize(document.getElementById('prompt').innerHTML) == zbalermornize(document.getElementById(id).innerHTML)) {
         history.unshift([true,t]);
-        over.innerHTML = "<div onanimationend='generate();'>✅</win>";
+        over.innerHTML = "<div onanimationend='generate();'>✅</div>";
       } else {
         history.unshift([false,t]);
-        over.innerHTML = "<div onanimationend='generate();'>❌</win>";
+        over.innerHTML = "<div onanimationend='generate();'>❌</div>";
       }
     }
   </script>
