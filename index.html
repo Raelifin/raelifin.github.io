@@ -27,7 +27,7 @@
     @keyframes tuck {
       0%   {}
       55%  {width: 100%; height: 100%; font-size: 8vw;}
-      100% {width: 2vw; height: 2vw; font-size: 2vw;}
+      100% {width: 2vw; height: 2vw; font-size: 3vw;}
     }
 
     #overlay.reveal {
@@ -58,7 +58,7 @@
 
     #prevresult {
       float: left;
-      font-size: 2vw;
+      font-size: 3vw;
       padding-left: 0.5vw;
       padding-right: 0.5vw;
     }
@@ -249,9 +249,12 @@
       time = (new Date()).getTime();
     }
 
+    const good = "<span style='color: green;'>✓</span>";
+    const bad = "<span style='color: red;'>✗</span>";
+
     function generateScore() {
       if (history.length == 0) { return; }
-      document.getElementById('prevresult').innerHTML = history[0][0] ? "✅" : "❌";
+      document.getElementById('prevresult').innerHTML = history[0][0] ? good : bad;
       let z = history.reduce(((y,x) => [y[0] + (x[0] ? 100/history.length : 0), y[1] + x[1]/history.length]), [0.0,0.0]);
       document.getElementById('accuracy').innerHTML = "xelmerli: "+String(Math.round(z[0]))+"%";
       document.getElementById('speed').innerHTML = "selsnidu: "+String(Math.round(z[1]/100)/10);
@@ -263,10 +266,10 @@
       over.classList.add('reveal');
       if (zbalermornize(document.getElementById('prompt').innerHTML) == zbalermornize(document.getElementById(id).innerHTML)) {
         history.unshift([true,t]);
-        over.innerHTML = "<div onanimationend='generate();'>✅</div>";
+        over.innerHTML = "<div onanimationend='generate();'>"+good+"</div>";
       } else {
         history.unshift([false,t]);
-        over.innerHTML = "<div onanimationend='generate();'>❌</div>";
+        over.innerHTML = "<div onanimationend='generate();'>"+bad+"</div>";
       }
     }
   </script>
