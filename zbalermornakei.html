@@ -1,0 +1,297 @@
+<html>
+<head>
+  <title>la zbalermorna kelci</title>
+  <link rel="stylesheet" type="text/css" href="http://jackhumbert.github.io/zbalermorna/assets/css/fonts.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; }
+
+    #overlay {
+      background-color: white;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -10;
+      opacity: 0;
+    }
+
+    @keyframes revelation {
+      0%   {opacity: 0; z-index: 10;}
+      40%  {opacity: 1; z-index: 10;}
+      90%  {opacity: 1; z-index: 10;}
+      100% {opacity: 0; z-index: 10;}
+    }
+
+    @keyframes tuck {
+      0%   {}
+      55%  {width: 100%; height: 100%; font-size: 8vw;}
+      100% {width: 2vw; height: 2vw; font-size: 3vw;}
+    }
+
+    #overlay.reveal {
+      animation-name: revelation;
+      animation-duration: 1s;
+    }
+
+    #overlay div {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12vw;
+      padding: 0.3vw;
+      animation-name: tuck;
+      animation-duration: 0.9s;
+    }
+
+    #score {
+      position: fixed;
+      z-index: -5;
+      width: 100%;
+      top: 0;
+      left: 0;
+      padding: 0.3vw;
+    }
+
+    #prevresult {
+      float: left;
+      font-size: 3vw;
+      padding-left: 0.5vw;
+      padding-right: 0.5vw;
+    }
+
+    #accuracy, #speed {
+      font-family: monospace;
+      color: #666;
+      font-size: 1.5vw;
+    }
+
+    section {
+      font-size: 3vw;
+      font-family: 'dunda-regular';
+      width: 80vw;
+      margin-right: auto;
+      margin-left: auto;
+      margin-top: 2vh;
+      padding: 2vw;
+      text-align: center;
+    }
+
+    #prompt {
+      margin-top: 5vh;
+      margin-bottom: 4vh;
+    }
+
+    .option {
+      border-radius: 50px;
+      border: 2px solid #EEE;
+      background-color: #EEE;
+      cursor: pointer;
+    }
+
+    .option:hover {
+      border: 2px solid black;
+    }
+
+    .option:active {
+      background-color: #DDD;
+    }
+  </style>
+  <script type="text/javascript">
+    let history = [];
+    let time = 0;
+
+    digit = ["no", "pa", "re", "ci", "vo", "mu", "xa", "ze", "bi"];
+    attitudinal = [".ii", ".o'i", ".ua", ".iu", ".zo'o", ".ai", ".ei", ".i'a", ".i'i", ".o'a", ".oi", ".ue", ".ua", ".uu", ".au"];
+    complex_attitudinal = attitudinal.map(x => x+"sai").concat(attitudinal.map(x => x+"cai"), attitudinal.map(x => x+"nai"));
+    delimeter = [".i", "ni'o", "no'i"];
+    article = ["le","lo","la"];
+    pro_sumpti = ["mi", "do", "mi'o", "ti", "ta"];
+    simple_sumti = ["purdi", "karce", "gerku", "remna", "prenu", "drata", "tutci", "ractu", "mlatu", "pendo"];
+    sumti = simple_sumti.map(x => "lo "+x);
+    simple_selbri = ["zvati", "dunda", "tavla", "tanru", "zenba", "klama", "gunka", "cliva", "pilno", "jimpe", "sipna", "zbasu"];
+    cu_selbri = simple_selbri.map(x => "cu "+x);
+    challenges = [
+      [attitudinal, article, simple_sumti, cu_selbri, sumti],
+      [article, simple_sumti, cu_selbri],
+      [attitudinal, digit],
+      [delimeter, simple_selbri, pro_sumpti],
+      [attitudinal, pro_sumpti, simple_selbri],
+      [pro_sumpti, simple_selbri, article, simple_sumti],
+      [simple_sumti, attitudinal],
+      [delimeter, digit, simple_sumti, cu_selbri, article, simple_sumti],
+      [simple_selbri, pro_sumpti],
+      [delimeter, attitudinal, simple_sumti, cu_selbri, simple_sumti],
+    ];
+
+    zba_lookup = [
+      ['ai',''],
+      ['ei',''],
+      ['oi',''],
+      ['au',''],
+      ['ia',''],
+      ['ie',''],
+      ['ii',''],
+      ['io',''],
+      ['iu',''],
+      ['iy',''],
+      ['ua',''],
+      ['ue',''],
+      ['ui',''],
+      ['uo',''],
+      ['uu',''],
+      ['uy',''],
+      ['p',''],
+      ['t',''],
+      ['k',''],
+      ['f',''],
+      ['l',''],
+      ['s',''],
+      ['c',''],
+      ['m',''],
+      ['x',''],
+      ['b',''],
+      ['d',''],
+      ['g',''],
+      ['v',''],
+      ['r',''],
+      ['z',''],
+      ['j',''],
+      ['n',''],
+      ['a',''],
+      ['e',''],
+      ['i',''],
+      ['o',''],
+      ['u',''],
+      ['y',''],
+      ["'",''],
+      ['.',''],
+    ];
+
+// U+ED8B      cnimahobu           ZBALERMORNA SYMBOL FOR CNIMAHO BU
+// U+EDB0      seplimeabu          ZBALERMORNA LETTER FULL ABU
+// U+EDB1      seplimeebu          ZBALERMORNA LETTER FULL EBU
+// U+EDB2      seplimeibu          ZBALERMORNA LETTER FULL IBU
+// U+EDB3      seplimeobu          ZBALERMORNA LETTER FULL OBU
+// U+EDB4      seplimeubu          ZBALERMORNA LETTER FULL UBU
+// U+EDB5      seplimeybu          ZBALERMORNA LETTER FULL YBU
+// U+EDB6      seplimeaibu         ZBALERMORNA LETTER FULL AIBU
+// U+EDB7      seplimeeibu         ZBALERMORNA LETTER FULL EIBU
+// U+EDB8      seplimeoibu         ZBALERMORNA LETTER FULL OIBU
+// U+EDB9      seplimeaubu         ZBALERMORNA LETTER FULL AUBU
+// U+ED9A      slakabu             ZBALERMORNA SYMBOL FOR SLAKA BU
+// U+ED8C      patonga             ZBALERMORNA COMBINING PA TONGA
+// U+ED8C      retonga             ZBALERMORNA COMBINING RE TONGA
+// U+ED8D      citonga             ZBALERMORNA COMBINING CI TONGA
+// U+ED8E      votonga             ZBALERMORNA COMBINING VO TONGA
+// U+ED98      bahebu              ZBALERMORNA COMBINING BAHEBU
+// U+ED9B      tcenabu             ZBALERMORNA COMBINING TCENA BU
+// U+ED99      smajibu             ZBALERMORNA SYMBOL FOR SMAJI BU
+
+    function zbalermornize(x) {
+      for (var i in zba_lookup) {
+        x = x.replaceAll(zba_lookup[i][0], zba_lookup[i][1]);
+      }
+      return x;
+    }
+
+    function sample() {
+      challenge = challenges[Math.floor(Math.random() * challenges.length)];
+      a = "";
+      b = "";
+      c = "";
+      d = "";
+      v1 = Math.floor(Math.random()*challenge.length);
+      let v2 = Math.floor(Math.random()*challenge.length);
+      while (v1 == v2) { v2 = Math.floor(Math.random()*challenge.length); }
+      for (let i = 0; i < challenge.length; i++) {
+        if (i == v1 || i == v2) {
+          let j1 = Math.floor(Math.random()*challenge[i].length);
+          let j2 = Math.floor(Math.random()*challenge[i].length);
+          while (j1 == j2) { j2 = Math.floor(Math.random()*challenge[i].length); }
+          x = challenge[i][j1];
+          y = challenge[i][j2];
+          a += " "+x;
+          b += " "+(i==v1 ? x : y);
+          c += " "+(i==v2 ? x : y);
+          d += " "+y;
+        } else {
+          x = challenge[i][Math.floor(Math.random()*challenge[i].length)];
+          a += " "+x;
+          b += " "+x;
+          c += " "+x;
+          d += " "+x;
+        }
+      }
+      return [a,b,c,d];
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function generate() {
+      generateScore();
+      x = sample();
+      if (Math.random() > 0.5) {
+        document.getElementById('prompt').innerHTML = zbalermornize(x[0]);
+        shuffle(x);
+        document.getElementById('opt1').innerHTML = x[0];
+        document.getElementById('opt2').innerHTML = x[1];
+        document.getElementById('opt3').innerHTML = x[2];
+        document.getElementById('opt4').innerHTML = x[3];
+      } else {
+        document.getElementById('prompt').innerHTML = x[0];
+        shuffle(x);
+        document.getElementById('opt1').innerHTML = zbalermornize(x[0]);
+        document.getElementById('opt2').innerHTML = zbalermornize(x[1]);
+        document.getElementById('opt3').innerHTML = zbalermornize(x[2]);
+        document.getElementById('opt4').innerHTML = zbalermornize(x[3]);
+      }
+      time = (new Date()).getTime();
+    }
+
+    const good = "<span style='color: green;'>✓</span>";
+    const bad = "<span style='color: red;'>✗</span>";
+
+    function generateScore() {
+      if (history.length == 0) { return; }
+      document.getElementById('prevresult').innerHTML = history[0][0] ? good : bad;
+      let z = history.reduce(((y,x) => [y[0] + (x[0] ? 100/history.length : 0), y[1] + x[1]/history.length]), [0.0,0.0]);
+      document.getElementById('accuracy').innerHTML = "xelmerli: "+String(Math.round(z[0]))+"%";
+      document.getElementById('speed').innerHTML = "selsnidu: "+String(Math.round(z[1]/100)/10);
+    }
+
+    function check(id) {
+      let t = (new Date()).getTime() - time;
+      let over = document.getElementById('overlay');
+      over.classList.add('reveal');
+      if (zbalermornize(document.getElementById('prompt').innerHTML) == zbalermornize(document.getElementById(id).innerHTML)) {
+        history.unshift([true,t]);
+        over.innerHTML = "<div onanimationend='generate();'>"+good+"</div>";
+      } else {
+        history.unshift([false,t]);
+        over.innerHTML = "<div onanimationend='generate();'>"+bad+"</div>";
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id='overlay' onanimationend='this.classList = [];'></div>
+  <div id='score'><div id='prevresult'></div><div id='accuracy'></div><div id='speed'></div></div>
+  <section id='prompt'>Please enable javascript.</section>
+  <section id='opt1' class='option' onclick='check("opt1")'></section>
+  <section id='opt2' class='option' onclick='check("opt2")'></section>
+  <section id='opt3' class='option' onclick='check("opt3")'></section>
+  <section id='opt4' class='option' onclick='check("opt4")'></section>
+  <script type="text/javascript">
+    generate();
+  </script>
+</body>
+</html>
