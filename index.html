@@ -104,19 +104,27 @@
     let history = [];
     let time = 0;
 
-    attitudinal = [".ii", ".o'i", ".ua", ".iu", ".zo'o", ".ai"];
-    pro_sumpti = ["mi", "do", "mi'o", "ti", "ta"];
-    three_word_sumti = ["mu xagji sofybakni", "re xagji sofybakni", "le blanu sofybakni"];
-    simple_selbri = ["zvati", "dunda", "tavla", "tanru", "zenba"];
-    cu_selbri = simple_selbri.map(x => "cu "+x);
-    simple_sumti = ["le purdi", "lo karce", "lo gerku", "la gerku", "lo remna", "le prenu"];
     digit = ["no", "pa", "re", "ci", "vo", "mu", "xa", "ze", "bi"];
+    attitudinal = [".ii", ".o'i", ".ua", ".iu", ".zo'o", ".ai", ".ei", ".i'a", ".i'i", ".o'a", ".oi", ".ue", ".ua", ".uu", ".au"];
+    complex_attitudinal = attitudinal.map(x => x+"sai").concat(attitudinal.map(x => x+"cai"), attitudinal.map(x => x+"nai"));
+    delimeter = [".i", "ni'o", "no'i"];
+    article = ["le","lo","la"];
+    pro_sumpti = ["mi", "do", "mi'o", "ti", "ta"];
+    simple_sumti = ["purdi", "karce", "gerku", "remna", "prenu", "drata", "tutci", "ractu", "mlatu", "pendo"];
+    sumti = simple_sumti.map(x => "lo "+x);
+    simple_selbri = ["zvati", "dunda", "tavla", "tanru", "zenba", "klama", "gunka", "cliva", "pilno", "jimpe", "sipna", "zbasu"];
+    cu_selbri = simple_selbri.map(x => "cu "+x);
     challenges = [
-      [attitudinal, three_word_sumti, cu_selbri, simple_sumti],
-      [simple_sumti, cu_selbri],
+      [attitudinal, article, simple_sumti, cu_selbri, sumti],
+      [article, simple_sumti, cu_selbri],
       [attitudinal, digit],
+      [delimeter, simple_selbri, pro_sumpti],
       [attitudinal, pro_sumpti, simple_selbri],
-      [pro_sumpti, simple_selbri, simple_sumti],
+      [pro_sumpti, simple_selbri, article, simple_sumti],
+      [simple_sumti, attitudinal],
+      [delimeter, digit, simple_sumti, cu_selbri, article, simple_sumti],
+      [simple_selbri, pro_sumpti],
+      [delimeter, attitudinal, simple_sumti, cu_selbri, simple_sumti],
     ];
 
     zba_lookup = [
