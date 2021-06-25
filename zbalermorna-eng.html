@@ -1,0 +1,274 @@
+<html>
+<head>
+  <title>la zbalermorna glico</title>
+  <link rel="stylesheet" type="text/css" href="http://jackhumbert.github.io/zbalermorna/assets/css/fonts.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin: 0; }
+
+    #overlay {
+      background-color: white;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -10;
+      opacity: 0;
+    }
+
+    @keyframes revelation {
+      0%   {opacity: 0; z-index: 10;}
+      40%  {opacity: 1; z-index: 10;}
+      90%  {opacity: 1; z-index: 10;}
+      100% {opacity: 0; z-index: 10;}
+    }
+
+    @keyframes tuck {
+      0%   {}
+      55%  {width: 100%; height: 100%; font-size: 8vw;}
+      100% {width: 2vw; height: 2vw; font-size: 3vw;}
+    }
+
+    #overlay.reveal {
+      animation-name: revelation;
+      animation-duration: 1s;
+    }
+
+    #overlay div {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12vw;
+      padding: 0.3vw;
+      animation-name: tuck;
+      animation-duration: 0.9s;
+    }
+
+    #score {
+      position: fixed;
+      z-index: -5;
+      width: 100%;
+      top: 0;
+      left: 0;
+      padding: 0.3vw;
+    }
+
+    #prevresult {
+      float: left;
+      font-size: 3vw;
+      padding-left: 0.5vw;
+      padding-right: 0.5vw;
+    }
+
+    #accuracy, #speed {
+      font-family: monospace;
+      color: #666;
+      font-size: 1.5vw;
+    }
+
+    section, #response {
+      font-size: 3vw;
+      font-family: 'dunda-regular';
+      width: 80vw;
+      margin-right: auto;
+      margin-left: auto;
+      margin-top: 2vh;
+      padding: 2vw;
+      text-align: center;
+    }
+
+    #prompt {
+      margin-top: 5vh;
+      margin-bottom: 4vh;
+    }
+
+    #response {
+      display: block;
+    }
+  </style>
+  <script type="text/javascript">
+    let history = [];
+    let time = 0;
+
+    // digit = ["no", "pa", "re", "ci", "vo", "mu", "xa", "ze", "bi"];
+    // attitudinal = [".ii", ".o'i", ".ua", ".iu", ".zo'o", ".ai", ".ei", ".i'a", ".i'i", ".o'a", ".oi", ".ue", ".ua", ".uu", ".au"];
+    // complex_attitudinal = attitudinal.map(x => x+"sai").concat(attitudinal.map(x => x+"cai"), attitudinal.map(x => x+"nai"));
+    // delimeter = [".i", "ni'o", "no'i"];
+    // article = ["le","lo","la"];
+    // pro_sumpti = ["mi", "do", "mi'o", "ti", "ta"];
+    // simple_sumti = ["purdi", "karce", "gerku", "remna", "prenu", "drata", "tutci", "ractu", "mlatu", "pendo"];
+    // sumti = simple_sumti.map(x => "lo "+x);
+    // simple_selbri = ["zvati", "dunda", "tavla", "tanru", "zenba", "klama", "gunka", "cliva", "pilno", "jimpe", "sipna", "zbasu"];
+    // cu_selbri = simple_selbri.map(x => "cu "+x);
+    pronoun_tobe_a = ["I am a", "you are a", "you're a", "I'm a", "he is a", "he's a", "she is a", "she's a"];
+    adjective = ["good", "bad", "normal", "cool", "boring", "lovely", "radical", "small", "young", "venerable"];
+    simple_noun = ["person", "animal", "worker", "communist", "consultant", "hero", "author"];
+    challenges = [
+      [pronoun_tobe_a, adjective, simple_noun],
+    ];
+
+    glico_pronounce = {
+      "i": "ai",
+      "am": "am",
+      "a": "ei",
+      "you": "iu",
+      "are": "ar",
+      "im": "aim",
+      "your": "ior",
+      "youre": "ior",
+      "he": "'i",
+      "is": "iz",
+      "hes": "'iz",
+      "she": "ci",
+      "shes": "ciz",
+      "good": "gyd",
+      "bad": "bad",
+      "normal": "normal",
+      "cool": "kul",
+      "boring": "boriŋ",
+      "lovely": "lyvli",
+      "radical": "radikal",
+      "small": "smal",
+      "young": "iyŋ",
+      "venerable": "venerybl",
+      "person": "persyn",
+      "animal": "animyl",
+      "worker": "urkyr",
+      "communist": "komunist",
+      "hero": "'iro",
+      "author": "aþr",
+    };
+
+    zba_lookup = [
+      ['ai',''],
+      ['ei',''],
+      ['oi',''],
+      ['au',''],
+      ['ia',''],
+      ['ie',''],
+      ['ii',''],
+      ['io',''],
+      ['iu',''],
+      ['iy',''],
+      ['ua',''],
+      ['ue',''],
+      ['ui',''],
+      ['uo',''],
+      ['uu',''],
+      ['uy',''],
+      ['p',''],
+      ['t',''],
+      ['k',''],
+      ['f',''],
+      ['l',''],
+      ['s',''],
+      ['c',''],
+      ['m',''],
+      ['x',''],
+      ['b',''],
+      ['d',''],
+      ['g',''],
+      ['v',''],
+      ['r',''],
+      ['z',''],
+      ['j',''],
+      ['n',''],
+      ['a',''],
+      ['e',''],
+      ['i',''],
+      ['o',''],
+      ['u',''],
+      ['y',''],
+      ["'",''],
+      ['.',''],
+    ];
+
+// U+ED8B      cnimahobu           ZBALERMORNA SYMBOL FOR CNIMAHO BU
+// U+EDB0      seplimeabu          ZBALERMORNA LETTER FULL ABU
+// U+EDB1      seplimeebu          ZBALERMORNA LETTER FULL EBU
+// U+EDB2      seplimeibu          ZBALERMORNA LETTER FULL IBU
+// U+EDB3      seplimeobu          ZBALERMORNA LETTER FULL OBU
+// U+EDB4      seplimeubu          ZBALERMORNA LETTER FULL UBU
+// U+EDB5      seplimeybu          ZBALERMORNA LETTER FULL YBU
+// U+EDB6      seplimeaibu         ZBALERMORNA LETTER FULL AIBU
+// U+EDB7      seplimeeibu         ZBALERMORNA LETTER FULL EIBU
+// U+EDB8      seplimeoibu         ZBALERMORNA LETTER FULL OIBU
+// U+EDB9      seplimeaubu         ZBALERMORNA LETTER FULL AUBU
+// U+ED9A      slakabu             ZBALERMORNA SYMBOL FOR SLAKA BU
+// U+ED8C      patonga             ZBALERMORNA COMBINING PA TONGA
+// U+ED8C      retonga             ZBALERMORNA COMBINING RE TONGA
+// U+ED8D      citonga             ZBALERMORNA COMBINING CI TONGA
+// U+ED8E      votonga             ZBALERMORNA COMBINING VO TONGA
+// U+ED98      bahebu              ZBALERMORNA COMBINING BAHEBU
+// U+ED9B      tcenabu             ZBALERMORNA COMBINING TCENA BU
+// U+ED99      smajibu             ZBALERMORNA SYMBOL FOR SMAJI BU
+
+    function zbalermornize_glico(x) {
+      return zbalermornize(x.replaceAll("'", "").toLowerCase().split(" ").map(x => glico_pronounce[x]).join(" "));
+    }
+
+    function zbalermornize(x) {
+      for (var i in zba_lookup) {
+        x = x.replaceAll(zba_lookup[i][0], zba_lookup[i][1]);
+      }
+      return x;
+    }
+
+    function sample() {
+      r = "";
+      challenge = challenges[Math.floor(Math.random() * challenges.length)];
+      for (let i = 0; i < challenge.length; i++) {
+        r += (i == 0 ? "" : " ")+challenge[i][Math.floor(Math.random()*challenge[i].length)];
+      }
+      return r;
+    }
+
+    function generate() {
+      generateScore();
+      document.getElementById('prompt').innerHTML = zbalermornize_glico(sample());
+      document.getElementById('response').value = "";
+      time = (new Date()).getTime();
+    }
+
+    const good = "<span style='color: green;'>✓</span>";
+    const bad = "<span style='color: red;'>✗</span>";
+
+    function generateScore() {
+      if (history.length == 0) { return; }
+      document.getElementById('prevresult').innerHTML = history[0][0] ? good : bad;
+      let z = history.reduce(((y,x) => [y[0] + (x[0] ? 100/history.length : 0), y[1] + x[1]/history.length]), [0.0,0.0]);
+      document.getElementById('accuracy').innerHTML = "xelmerli: "+String(Math.round(z[0]))+"%";
+      document.getElementById('speed').innerHTML = "selsnidu: "+String(Math.round(z[1]/100)/10);
+    }
+
+    function check() {
+      let t = (new Date()).getTime() - time;
+      let over = document.getElementById('overlay');
+      over.classList.add('reveal');
+      if (document.getElementById('prompt').innerHTML == zbalermornize_glico(document.getElementById('response').value)) {
+        history.unshift([true,t]);
+        over.innerHTML = "<div onanimationend='generate();'>"+good+"</div>";
+      } else {
+        history.unshift([false,t]);
+        over.innerHTML = "<div onanimationend='generate();'>"+bad+"</div>";
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id='overlay' onanimationend='this.classList = [];'></div>
+  <div id='score'><div id='prevresult'></div><div id='accuracy'></div><div id='speed'></div></div>
+  <section id='prompt'>Please enable javascript.</section>
+  <input id='response' type='text' autofocus/>
+  <script type="text/javascript">
+    generate();
+
+    document.getElementById("response").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") { check(); }
+    });
+  </script>
+</body>
+</html>
