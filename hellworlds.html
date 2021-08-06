@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>Hellworlds</title>
+<meta name="viewport" content="width=1100, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <style>
 body {
@@ -9,6 +10,7 @@ body {
 
 p {
   max-width: 800px;
+  font-size: 25px;
 }
 
 body, select, input {
@@ -149,7 +151,8 @@ or of becoming trapped in a hellish future world, can be broadly divided into tw
   <option value="or" disabled>disjunctive</option>
 </select> reasoning.</p>
 
-<p>As we stack a bunch of "<span id="and_or">and</span>" statements, the probability of our
+<p>Each component of the <span id="con_dis">con</span>junction must be true for the whole to be true.
+Thus, as we stack a bunch of "<span id="and_or">and</span>" statements, the probability of our
 considered outcome <span id="shrinks_grows">shrinks</span> more and more.</p>
 
 <p><strong>Warning</strong>: A common error when doing this kind of reasoning is to fail to condition properly.
