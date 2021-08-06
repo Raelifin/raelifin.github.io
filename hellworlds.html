@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>Hellworlds</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+body {
+  margin: 50px;
+}
+
+p {
+  max-width: 800px;
+}
+
+body, select, input {
+  background: rgb(255, 250, 245);
+  color: rgb(30, 30, 30);
+  font-size: 25px;
+  font-family: Georgia,Times,Times New Roman,serif;
+  line-height: 130%;
+}
+
+select {
+  font-weight: bold;
+}
+
+input {
+  border: 0;
+  width: 65px;
+}
+
+input, [contenteditable] {
+  border-bottom: thin dashed black;
+}
+
+div {
+  padding-left: 20px;
+
+}
+
+#total {
+  font-weight: bold;
+  font-size: 150%;
+}
+</style>
+<script>
+
+function calcTotal() {
+  var total = 1;
+  $('input').each(function (i) {
+    total *= $(this).val();
+  });
+  let n = Math.round(total*1000000)/10000;
+  if (n == 0 && total == 0) {
+    $('#total').html("0%");
+  } else if (n == 0) {
+    $('#total').html("less than 0.0001%");
+  } else {
+    $('#total').html(n+"%");
+  }
+  colorCanvas();
+  return n;
+}
+
+function colorCanvas() {
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, 1000, 1000);
+  var x = 0;
+  var y = 0;
+  var p = 1000000;
+  $('input').each(function (i) {
+    ctx.strokeStyle = "hsl("+(100 + (i*360/$('input').length))+", 100%, 50%)";
+    console.log(p);
+    var j = p * (1 - $(this).val());
+    p *= $(this).val();
+    console.log(j);
+    var i = 0;
+    while (i < j) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      var w = Math.min(j, 1000 - x);
+      ctx.lineTo(x+w, y);
+      ctx.stroke();
+      x += w;
+      if (x > 999) {
+        x -= 1000;
+        y += 1;
+      }
+      i += w;
+    }
+  });
+  //
+  // ctx.strokeRect(0, 0, 1000, 1000);
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function editSpan(el) {
+  if ($(el).text() == "") {
+    if (el.nextSibling == null) {
+      $(el).text("nothing else");
+    } else {
+      $(el).closest('div').remove();
+      calcTotal();
+      $('div span').first().each(function (i) {
+        $(el.previousSibling).remove();
+        $(el).text(capitalizeFirstLetter($(el).text()));
+      })
+    }
+  } else if (el.nextSibling == null) {
+    $(el).after('... (P = <input type="number" max="1" min="0" step="0.1" value="0.5">)');
+    calcTotal();
+    $(el).closest('div').after('<div>and <span contenteditable>nothing else.</span></div>');
+    $('input').change(e => calcTotal());
+    $('[contenteditable]').change(function (e) { editSpan(this); });
+  }
+}
+
+$(document).ready(function() {
+  calcTotal();
+  $('input').change(e => calcTotal());
+  $('[contenteditable]').change(function (e) { editSpan(this); });
+
+  $('body').on('focus', '[contenteditable]', function() {
+    const $this = $(this);
+    $this.data('before', $this.html());
+  }).on('blur keyup paste input', '[contenteditable]', function() {
+      const $this = $(this);
+      if ($this.data('before') !== $this.html()) {
+          $this.data('before', $this.html());
+          $this.trigger('change');
+      }
+  });
+});
+
+</script>
+</head>
+<body>
+<p>Reasoning about future events, such as having the Earth stay intact over the next few centuries,
+or of becoming trapped in a hellish future world, can be broadly divided into two categories:
+<em>conjunctive</em> (ie "X and Y") vs <em>disjunctive</em> (ie "X or Y").
+(In truth, full reasoning ought to have a complex mixture of both, but I'll ignore that here.)</p>
+
+<p>Let's think about <select id="reasoning">
+  <option value="and">conjunctive</option>
+  <option value="or" disabled>disjunctive</option>
+</select> reasoning.</p>
+
+<p>As we stack a bunch of "<span id="and_or">and</span>" statements, the probability of our
+considered outcome <span id="shrinks_grows">shrinks</span> more and more.</p>
+
+<p><strong>Warning</strong>: A common error when doing this kind of reasoning is to fail to condition properly.
+A proper <span id="conj_disj">conj</span>unction involves each subsequent statement after the first
+being conditioned on the previous statements all being <span id="true_false">true</span>. In other
+words, don't think of it as <span class="math">P(X) <span id="times_plus1">*</span> P(Y) ...</span>,
+but rather as <span class="math">P(X) <span id="times_plus2">*</span> P(Y<strong>|<span id="X_notX">X</span></strong>) ...</span>
+
+<p>(Click on underlined text to edit it. Delete its contents to erase that statement.)</p>
+
+<p>In order to <span id="outcome" contenteditable>find yourself in a hellworld after being cryopreserved</span>:</p>
+<div><span contenteditable>The awakener must not care about you</span>... (P = <input type="number" max="1" min="0" step="0.1" value="0.2">)</div>
+<div>and <span contenteditable>the life you awaken to must be worse than death</span>... (P = <input type="number" max="1" min="0" step="0.1" value="0.1">)</div>
+<div>and <span contenteditable>you must be (indefinitely) unable to take your own life</span>... (P = <input type="number" max="1" min="0" step="0.1" value="0.5">)</div>
+<div>and <span contenteditable>the caretakers of your preserved body must have failed to protect/proactively destroy you</span>... (P = <input type="number" max="1" min="0" step="0.1" value="0.33">)</div>
+<div>and <span contenteditable>nothing else.</span></div>
+
+<p>Overall probability is at <em><span id="most_least">most</span></em>: <span id="total">0.33%</span></p>
+
+<p>That's the fraction of pixels in this image that are black:</p>
+
+<canvas id="myCanvas" width=1000 height=1000></canvas>
+</body>
